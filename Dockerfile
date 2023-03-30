@@ -6,11 +6,11 @@ LABEL maintainer="anthonyrsoltis@gmail.com"
 LABEL version="1.3.3"
 LABEL build-date=$BUILD_DATE
 LABEL description="MutEnricher: somatic coding and noncoding mutation enrichment analysis tool."
-LABEL url="https://github.com/asoltis/MutEnricher"
+LABEL url="https://github.com/CJBgon/MutEnricher/"
 
 WORKDIR /usr/src/app
 
-RUN curl -L http://github.com/asoltis/mutenricher/archive/master.tar.gz -o MutEnricher-master.tar.gz
+RUN curl -L http://github.com/CJBgon/MutEnricher/archive/master.tar.gz -o MutEnricher-master.tar.gz
 
 RUN tar -xzvf MutEnricher-master.tar.gz
 
