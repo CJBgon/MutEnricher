@@ -92,7 +92,7 @@ def run(parser,args,version):
     # annotation type
     tType = vargs['tType']
     if use_maf: tType = 'maf' # over-ride if MAF being used
-    elif tType not in ['annovar-refGene','annovar-knownGene','annovar-ensGene','SnpEff','illumina','VEP']:
+    elif tType not in ['annovar-refGene','annovar-knownGene','annovar-ensGene','SnpEff','illumina','VEP', 'cellbase']:
         if os.path.isfile(tType):
             annrows = set([x.strip().split('\t')[0] for x in open(tType).readlines()])
             if len(annrows) != 2: parser.error('Custom annotations file must contain Gene and Effect as row names')
@@ -793,7 +793,7 @@ def load_nonsilent_terms(tType):
                  'nonframeshift_deletion','nonframeshift_insertion','nonframeshift_substitution',
                  'nonsynonymous_SNV','stopgain','stoploss']
         return terms
-    elif tType in ['SnpEff', 'VEP']:
+    elif tType in ['SnpEff', 'VEP', 'cellbase']:
         terms = ["missense_variant","stop_gained","frameshift_variant","inframe_deletion", #"splice_region_variant",
                  "splice_acceptor_variant","splice_donor_variant","inframe_insertion",
                  "stop_lost","start_lost","disruptive_inframe_deletion","disruptive_inframe_insertion",
@@ -858,6 +858,8 @@ def count_mutations_from_vcfs(VCFs,names,genes,terms,tType,snps_only,blacklist=N
         anno_val, gname_val = 'ANN', 'ANN'
     elif tType == 'VEP':
         anno_val, gname_val = 'CSQ', 'CSQ'
+    elif tType == 'cellbase':
+        anno_val, gname_val = 'CT', 'CT'
 
     # count vars
     for j,vcf_f in enumerate(VCFs):
@@ -932,6 +934,21 @@ def count_mutations_from_vcfs(VCFs,names,genes,terms,tType,snps_only,blacklist=N
                                             if g.name == ginfo: 
                                                 nonsilent = True
                                                 break
+                            except KeyError: pass
+                        elif tType in ['cellbase']:
+                            try:
+                                ANN = v.INFO[anno_val]
+                                for ann in ANN.split(','):
+                                    # altid, effterm, vimpact, ginfo = ann.split('|')[0:4]
+                                    # GeneName|TranscriptID|CDSchange|ProteinChange|ConsequenceType
+                                    ginfo, transid, cchange, pchange, effterm  = ann.split('|')[0:5]
+                                    found_term = False
+                                    for eterm in effterm.split('&'):
+                                        if eterm in terms: found_term = True
+                                    if found_term:
+                                        if g.name == ginfo: 
+                                            nonsilent = True
+                                            break
                             except KeyError: pass
                         else:
                             found_term = False
