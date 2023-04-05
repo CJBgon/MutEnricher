@@ -948,7 +948,6 @@ def count_mutations_from_vcfs(VCFs,names,genes,terms,tType,snps_only,blacklist=N
                                     if found_term:
                                         if g.name == ginfo: 
                                             nonsilent = True
-                                            break
                             except KeyError: pass
                         else:
                             found_term = False
