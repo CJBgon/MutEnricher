@@ -1558,7 +1558,7 @@ def get_hotspot_enrichments_covar(g,genes,ns,global_bg,scr,bg_vtype,stat_type,wi
             if stat_type == 'nmutations':
                 # use negative binomial test
                 pv = betainc(k,x-k+1,bgp) 
-                pv = max(2.2250738585072014e-308, pv)
+                pv = max(2.2250738585072014e-308, pv.pvalue)
             elif stat_type == 'nsamples':
                 # use binomial test
                 pi = 1 - pow(1 - bgp, c_len) # pi = 1 - (1 - bg)^Len_hs
@@ -1619,7 +1619,7 @@ def get_hotspot_enrichments_local(g,ns,stat_type):
             if stat_type == 'nmutations':
                 # use negative binomial test
                 pv = betainc(k,x-k+1,bgp) 
-                pv = max(2.2250738585072014e-308, pv)
+                pv = max(2.2250738585072014e-308, pv.pvalue)
             elif stat_type == 'nsamples':
                 # use binomial test
                 pi = 1 - pow(1 - bgp, c_len) # pi = 1 - (1 - bg)^Len_hs
@@ -1680,7 +1680,7 @@ def get_hotspot_enrichments_global(g,global_bg_rates,ns,stat_type):
             if stat_type == 'nmutations':
                 # use negative binomial test
                 pv = betainc(k,x-k+1,bgp) 
-                pv = max(2.2250738585072014e-308, pv)
+                pv = max(2.2250738585072014e-308, pv.pvalue)
             elif stat_type == 'nsamples':
                 # use binomial test
                 pi = 1 - pow(1 - bgp, c_len) # pi = 1 - (1 - bg)^Len_hs
