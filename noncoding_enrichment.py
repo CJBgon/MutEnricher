@@ -828,7 +828,7 @@ def get_region_enrichments_global(r,bg_rates,ns,stat_type):
         pi = 1 - pow(1 - bg, r.length) # pi = 1 - (1 - bg)^L
         try:
             pvf = BT(nmut, ns, pi, alternative='greater')
-            pvf = max(2.2250738585072014e-308, pvf) 
+            pvf = max(2.2250738585072014e-308, pvf.pvalue) 
         except:
             print('  error at region %s with length: %d, num mutations: %d, and bg: %f'%(r.region_string,r.length,kf,bg))
             pvf = 1
@@ -864,7 +864,7 @@ def get_region_enrichments_local(r,ns,stat_type):
         pi = 1 - pow(1 - bg, r.length) # pi = 1 - (1 - bg)^L
         try:
             pvf = BT(nmut, ns, pi, alternative='greater')
-            pvf = max(2.2250738585072014e-308, pvf) 
+            pvf = max(2.2250738585072014e-308, pvf.pvalue) 
         except:
             print('  error at region %s with length: %d, num mutations: %d, and bg: %f'%(r.region_string,r.length,kf,bg))
             pvf = 1
@@ -898,7 +898,7 @@ def get_region_enrichments_covar(r,ns,stat_type):
         pi = 1 - pow(1 - bg, r.length) # pi = 1 - (1 - bg)^L
         try:
             pvf = BT(nmut, ns, pi, alternative='greater')
-            pvf = max(2.2250738585072014e-308, pvf) 
+            pvf = max(2.2250738585072014e-308, pvf.pvalue) 
         except:
             print('  error at region %s with length: %d, num mutations: %d, and bg: %f'%(r.region_string,r.length,kf,bg))
             pvf = 1
@@ -948,7 +948,7 @@ def get_hotspot_enrichments_covar(r,regions,ns,scr,stat_type,with_local=False):
                 # use binomial test
                 pi = 1 - pow(1 - bgp, c_len) # pi = 1 - (1 - bg)^Len_hs
                 pv = BT(nmut, ns, pi, alternative='greater')
-                pv = max(2.2250738585072014e-308, pv)
+                pv = max(2.2250738585072014e-308, pv.pvalue)
 
             # Get counts for positions and mutations
             counter = Counter(r.clusters[clust]['positions'])
@@ -1010,7 +1010,7 @@ def get_hotspot_enrichments_local(r,ns,stat_type):
                 # use binomial test
                 pi = 1 - pow(1 - bgp, c_len) # pi = 1 - (1 - bg)^Len_hs
                 pv = BT(nmut, ns, pi, alternative='greater')
-                pv = max(2.2250738585072014e-308, pv)
+                pv = max(2.2250738585072014e-308, pv.pvalue)
 
             # Get counts for positions and mutations
             counter = Counter(r.clusters[clust]['positions'])
@@ -1071,7 +1071,7 @@ def get_hotspot_enrichments_global(r,global_bg_rates,ns,stat_type):
                 # use binomial test
                 pi = 1 - pow(1 - bgp, c_len) # pi = 1 - (1 - bg)^Len_hs
                 pv = BT(nmut, ns, pi, alternative='greater')
-                pv = max(2.2250738585072014e-308, pv)
+                pv = max(2.2250738585072014e-308, pv.pvalue)
      
             # Get counts for positions and mutations
             counter = Counter(r.clusters[clust]['positions'])
