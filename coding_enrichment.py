@@ -39,11 +39,15 @@ def run(parser,args,version):
     vargs = vars(args)
     
     # Parse required
-    gtf_fn = vargs['GTF']
+    # gtf_fn = vargs['GTF']
+    gtf_fn = '/Users/christianbouwens/Documents/resources/Transcripts/MANE.GRCh38.v1.0.refseq_genomic.gtf'
     if not os.path.isfile(gtf_fn): parser.error('GTF file does not exist!')
     list_fn = vargs['vcfs']
-    genefield = vargs['genefield']
-    MAF = vargs['maf'] 
+    list_fn='/Users/christianbouwens/Documents/resources/containers/vcf_list.txt'
+    # genefield = vargs['genefield']
+    genefield='gene_id'
+    # MAF = vargs['maf'] 
+    MAF=None
     use_maf = False
     if MAF != None:
         if not os.path.isfile(MAF): parser.error('Supplied MAF file does not exist!')
@@ -72,25 +76,31 @@ def run(parser,args,version):
 
     # OPTIONS
     print('\n----------------------------INITIALIZATION----------------------------')
-    outdir = vargs['outdir']
+    #outdir = vargs['outdir']
+    outdir = '/Users/christianbouwens/Documents/resources/containers/mutenricher/outdir/'
     os.system('mkdir -p %s'%(outdir))
     print('Output directory for results: %s'%(outdir))
     if not outdir.endswith('/'): outdir+='/'
-    prefix = vargs['prefix'] + '_'
+    # prefix = vargs['prefix'] + '_'
+    prefix='test_'
     print('Analysis prefix: %s'%(prefix))
-    nprocessors = min(mp.cpu_count(),vargs['nprocessors'])
+    # nprocessors = min(mp.cpu_count(),vargs['nprocessors'])
+    nprocessors=1
     # count test type
-    stat_type = vargs['stat_type']
+    # stat_type = vargs['stat_type']
+    stat_type='nsamples'
     if stat_type not in ['nmutations','nsamples']:
         parser.error("--stat-type must be one of either 'nmutations' or 'nsamples'.")
     print('Statistical testing type: %s'%(stat_type))
     # background variants type
-    bg_vtype = vargs['bg_vars_type']
+    # bg_vtype = vargs['bg_vars_type']
+    bg_vtype='all'
     if bg_vtype not in ['all','silent']: parser.error("--bg-vars-type must be one of either 'all' or 'silent'.")
     if bg_vtype == 'all': print('Considering all variants in background rate calculations.')
     elif bg_vtype == 'silent': print('Considering only silent variants in background rate calculations.')
     # annotation type
-    tType = vargs['tType']
+    # tType = vargs['tType']
+    tTYpe='cellbase'
     if use_maf: tType = 'maf' # over-ride if MAF being used
     elif tType not in ['annovar-refGene','annovar-knownGene','annovar-ensGene','SnpEff','illumina','VEP', 'cellbase']:
         if os.path.isfile(tType):
@@ -102,11 +112,14 @@ def run(parser,args,version):
         else: parser.error('Invalid annotation type!')
     else: print('Annotation type: %s'%(tType))
     snps_only = vargs['snps_only']
+    snps_only=False
     if snps_only: print('Performing SNPs-only analysis')
     else: print('Considering both SNPs and indels in analysis.')
     exome_only = vargs['exome_only']
+    exome_only=False
     if exome_only: print('Considering only exonic gene coordinates.')
     gene_list = vargs['gene_list']
+    gene_list=None
     genes_to_use = []
     if gene_list != None:
         if not os.path.isfile(gene_list): parser.error('Supplied gene list file does not exist!')
@@ -116,16 +129,19 @@ def run(parser,args,version):
             print('Only considering %d genes from input gene list in analysis.'%(len(genes_to_use)))
     # Mappability information
     mapr = vargs['map_regions']
+    mapr=None
     if mapr != None:
         if not os.path.isfile(mapr) or not os.path.isfile(mapr+'.tbi'): parser.error('Mappability file and/or its index not found!')
         print('Loaded mappable regions from input BED file.')
     # covariates data
     use_covars = False
     cov_fn = vargs['cov_fn']
+    cov_fn=None
     if cov_fn != None:
         if not os.path.isfile(cov_fn): parser.error('Supplied covariates file does not exist!')
         else: use_covars = True 
     weights_fn = vargs['weights_fn']
+    weights_fn=None
     if weights_fn != None and not os.path.isfile(weights_fn): parser.error('Supplied covariates weight file does not exist!')
     if cov_fn != None and weights_fn != None:
         cov_fn_covs = open(cov_fn).readlines()[0].strip().split('\t')[1:]
@@ -142,9 +158,12 @@ def run(parser,args,version):
         use_covars = True
         if not vargs['cov_precomp_dir'].endswith('/'): vargs['cov_precomp_dir']+='/'
     min_clust_size = vargs['min_clust_size']
+    min_clust_size=3
     by_contig = vargs['by_contig']
+    by_contig=False
     # check if local background requested
     use_local = vargs['use_local']
+    use_local=True
     if vargs['use_local'] == True and use_covars == True and use_maf == False:
         print('  --use-local selected with covariates provided. Local backgrounds will be considered in covariate cluster rate calculations.')
     if use_local == True and use_maf == True:
@@ -152,17 +171,24 @@ def run(parser,args,version):
         use_local = False
     # hotspot options
     max_hs_dist = vargs['max_hs_dist']
+    max_hs_dist=50
     min_clust_vars = vargs['min_hs_vars']
+    min_clust_vars=3
     min_clust_samps = vargs['min_hs_samps']
+    min_clust_samps=2
     # blacklist
     bl_fn = vargs['blacklist_fn']
+    bl_fn=None
     if bl_fn != None:
         if not os.path.isfile(bl_fn): parser.error('Blacklist file does not exist!')
     # Affinity propagation options
     ap_iters = vargs['ap_iters']
+    ap_iters=1000
     ap_convits=vargs['ap_convits']
+    ap_convits=50
     if ap_convits > ap_iters: parser.error('AP total iterations must be greater than convergence iterations! Exiting')
     ap_alg = vargs['ap_alg']
+    ap_alg='fast'
     if ap_alg not in ['fast','slow']: 
         parser.error("AP algorithm type must be one of either 'fast' or 'slow'.")
 
@@ -343,7 +369,7 @@ def run(parser,args,version):
         genes,sample_names = count_mutations_from_maf(MAF,genes,gene2index,terms,tType,snps_only,blacklist)
         ns = len(sample_names) # set number of samples
         oflog.writelines('%d samples detected in input MAF.\n'%(ns))
-        
+
         if use_covars: # Get local bacgkround rates for small cluster size genes after counting
             print('\nCalculating local background rates for %d genes with fewer than %d'%(len(scr),min_clust_size))
             print('cluster members.')
@@ -372,14 +398,19 @@ def run(parser,args,version):
             rr = range(i*chunk_size,min((i+1)*chunk_size,len(genes)))
             chunks.append(genes[rr[0]:rr[-1]+1])
         print('  Divided %d genes into %d gene chunks.'%(len(genes),num_chunks))
-
-        res = [pool.apply_async(count_mutations_from_vcfs,args=(VCFs,sample_names,c,terms,tType,snps_only,blacklist,mapr),callback=dones.append) for c in chunks]
+# the issue could be here.
+        c = chunks[0][0:1]
+        sample_names=names
+        res_one = count_mutations_from_vcfs(VCFs,sample_names,c,terms,tType,snps_only,blacklist,mapr)
+        res = pool.apply_async(count_mutations_from_vcfs,args=(VCFs,names,c,terms,tType,snps_only,blacklist,mapr),callback=dones.append)
+        res = [pool.apply_async(count_mutations_from_vcfs,args=(VCFs,sample_names,c,terms,tType,snps_only,blacklist,mapr),callback=dones.append) for c in chunks[0][0]]
         while len(dones) != num_chunks:
             if len(dones)%10==0 and was_done != len(dones):
                 was_done = len(dones)
                 print('    %d of %d gene chunks complete.'%(len(dones),num_chunks))
         genes = []
         for r in res:
+            print(r)
             rget = r.get() 
             for rr in rget: genes.append(rr)
         del(res)
@@ -389,7 +420,7 @@ def run(parser,args,version):
     # log total mutations
     total_nonsilent,total_muts,tot_g_with_nonsilent = 0,0,0
     for g in genes:
-        total_muts += g.total_mutations
+        total_muts += g.total_mutations  # these end up 0 -- clearly we are not grabbing any muts.
         total_nonsilent += g.total_nonsilent_mutations
         if g.total_nonsilent_mutations > 0: tot_g_with_nonsilent += 1
     oflog.writelines('%d total non-silent somatic mutations identified in %d genes.\n'%(total_nonsilent,tot_g_with_nonsilent))
@@ -797,7 +828,7 @@ def load_nonsilent_terms(tType):
         terms = ["missense_variant","stop_gained","frameshift_variant","inframe_deletion", #"splice_region_variant",
                  "splice_acceptor_variant","splice_donor_variant","inframe_insertion",
                  "stop_lost","start_lost","disruptive_inframe_deletion","disruptive_inframe_insertion",
-                 "initiator_codon_variant","conservative_inframe_insertion","conservative_inframe_deletion"]
+                 "initiator_codon_variant","conservative_inframe_insertion","conservative_inframe_deletion",'non_coding_transcript_variant']
         return terms
     elif tType == 'maf':
         terms =  ["Frame_Shift_Del","Frame_Shift_Ins","In_Frame_Del","In_Frame_Ins",
@@ -866,33 +897,54 @@ def count_mutations_from_vcfs(VCFs,names,genes,terms,tType,snps_only,blacklist=N
         vcf = VCF(vcf_f,gts012=True,lazy=False)
         name = names[j]
         tot_added = 0
-        for i,g in enumerate(genes):
+        for i,g in enumerate(genes[0:3]):
+
+            # i=1,
+            # g=genes[1]
+            print(i,g.name)
             chrom,start,stop = g.chrom,g.start,g.stop
             if mapr == None:
+                # gstr = '%s:%d-%d'%(chrom,58345178,stop)
+                # 52559192
+                # gstr='%s:%d-%d'%(chrom,52559190,52559200)
                 gstr = '%s:%d-%d'%(chrom,start,stop)
                 g_strings = [gstr]
             else: g_strings = g.mappable_regions
             
             tot_bg,tot_nonsilent = 0,0 
             for gstr in g_strings:
+                print(gstr)
                 prior_var = None
-                for v in vcf(gstr): 
+                # for newvar in vcf:
+                #     newvar.CHROM
+                #  vcf = list(VCF(vcf_f))
+
+                # for v in vcf:
+                #     print(v.CHROM,v.POS)
+                for v in vcf(gstr):
+                    # vcf('chr10:50799409-50885627')
+                    # print(str(vcf(gstr)))
                     # variant filtering
+                    
+                    # vcf(gstr)
+                    # print(v.POS)                    
                     filt = v.FILTER
                     if filt != None: continue # None is PASS with cyvcf2
-                    
+
                     # Get variant info
                     pos = v.POS
+                    # print(pos)
                     if sys.version_info.major == 2: # handle encoding based on python major version
                         ref = v.REF.encode('ascii')
                     elif sys.version_info.major == 3:
                         ref = v.REF
-                    for a in v.ALT:
+                    for a in v.ALT:  # go through all the ALTS (multi allelic vars?)
                         if sys.version_info.major == 2:
                             alt = a.encode('ascii')
                         elif sys.version_info.major == 3:
                             alt = a
                         var_info = '%d_%s_%s'%(pos,ref,alt)
+                        # print(var_info)
                         # check if duplicate
                         if prior_var != None:
                             if var_info == prior_var: continue
@@ -905,7 +957,7 @@ def count_mutations_from_vcfs(VCFs,names,genes,terms,tType,snps_only,blacklist=N
                     
                         # check if nonsilent
                         nonsilent = False
-                        if tType in ['illumina','annovar-refGene','annovar-knownGene','annovar-ensGene']:
+                        if tType in ['illumina','annovar-refGene','annovar-knownGene','annovar-ensGene']:  # annovar doesn't care about Alt allele
                             try:
                                 found_term = False
                                 for term in terms: 
@@ -938,16 +990,20 @@ def count_mutations_from_vcfs(VCFs,names,genes,terms,tType,snps_only,blacklist=N
                         elif tType in ['cellbase']:
                             try:
                                 ANN = v.INFO[anno_val]
+                                print(ANN)
                                 for ann in ANN.split(','):
+                                    print(ann)  # the first entry does not have a comma, and starts with |
                                     # altid, effterm, vimpact, ginfo = ann.split('|')[0:4]
                                     # GeneName|TranscriptID|CDSchange|ProteinChange|ConsequenceType
                                     ginfo, transid, cchange, pchange, effterm  = ann.split('|')[0:5]
+                                    # print(ginfo, effterm)
                                     found_term = False
                                     for eterm in effterm.split('&'):
                                         if eterm in terms: found_term = True
                                     if found_term:
-                                        if g.name == ginfo: 
-                                            nonsilent = True
+                                        if g.name == ginfo: nonsilent = True
+          
+                                    print(ginfo, effterm, found_term, nonsilent, g.name)
                             except KeyError: pass
                         else:
                             found_term = False
@@ -1379,7 +1435,7 @@ def get_gene_enrichments_global_bg(g,bg_rates,ns,stat_type):
         pi = 1 - pow(1 - bg, g.coding_length) # pi = 1 - (1 - bg)^L
         try:
             pvf = BT(nmut, ns, pi, alternative='greater')
-            pvf = max(2.2250738585072014e-308, pvf)
+            pvf = max(2.2250738585072014e-308, pvf.pvalue)
         except:
             print('  error at gene %s with length: %d, k: %d, and bg: %f'%(g.name,g.coding_length,kf,bg))
             pvf = 1
@@ -1419,7 +1475,7 @@ def get_gene_enrichments_local_bg(g,ns,stat_type):
         pi = 1 - pow(1 - bg, g.coding_length) # pi = 1 - (1 - bg)^L
         try:
             pvf = BT(nmut, ns, pi, alternative='greater')
-            pvf = max(2.2250738585072014e-308, pvf)
+            pvf = max(2.2250738585072014e-308, pvf.pvalue)
         except:
             print('  error at gene %s with length: %d, k: %d, and bg: %f'%(g.name,g.coding_length,kf,bg))
             pvf = 1
@@ -1452,7 +1508,7 @@ def get_gene_enrichments_covar(g,ns,stat_type):
         pi = 1 - pow(1 - bg, g.coding_length) # pi = 1 - (1 - bg)^L
         try:
             pvf = BT(nmut, ns, pi, alternative='greater')
-            pvf = max(2.2250738585072014e-308, pvf)
+            pvf = max(2.2250738585072014e-308, pvf.pvalue)
         except:
             print('  error at gene %s with length: %d, k: %d, and bg: %f'%(g.name,g.coding_length,kf,bg))
             pvf = 1
@@ -1507,7 +1563,7 @@ def get_hotspot_enrichments_covar(g,genes,ns,global_bg,scr,bg_vtype,stat_type,wi
                 # use binomial test
                 pi = 1 - pow(1 - bgp, c_len) # pi = 1 - (1 - bg)^Len_hs
                 pv = BT(nmut, ns, pi, alternative='greater')
-                pv = max(2.2250738585072014e-308, pv)
+                pv = max(2.2250738585072014e-308, pv.pvalue)
 
             # Get counts for positions and mutations
             counter = Counter(g.clusters[clust]['positions'])
@@ -1568,7 +1624,7 @@ def get_hotspot_enrichments_local(g,ns,stat_type):
                 # use binomial test
                 pi = 1 - pow(1 - bgp, c_len) # pi = 1 - (1 - bg)^Len_hs
                 pv = BT(nmut, ns, pi, alternative='greater')
-                pv = max(2.2250738585072014e-308, pv)
+                pv = max(2.2250738585072014e-308, pv.pvalue)
 
             # Get counts for positions and mutations
             counter = Counter(g.clusters[clust]['positions'])
@@ -1629,7 +1685,7 @@ def get_hotspot_enrichments_global(g,global_bg_rates,ns,stat_type):
                 # use binomial test
                 pi = 1 - pow(1 - bgp, c_len) # pi = 1 - (1 - bg)^Len_hs
                 pv = BT(nmut, ns, pi, alternative='greater')
-                pv = max(2.2250738585072014e-308, pv)
+                pv = max(2.2250738585072014e-308, pv.pvalue)
            
             # Get counts for positions and mutations
             counter = Counter(g.clusters[clust]['positions'])
