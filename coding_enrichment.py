@@ -12,7 +12,7 @@ import time
 from collections import Counter
 import random
 from scipy.special import betainc
-from scipy.stats import binom_test as BT
+from scipy.stats import binomtest as BT
 from scipy.stats.mstats import gmean
 from scipy.stats import combine_pvalues as CPVAL
 from gene_covariate_clustering import covariate_cluster as covc
